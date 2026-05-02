@@ -1,0 +1,48 @@
+[project]
+name = "realestate-mcp"
+version = "0.1.0"
+description = "MCP servers for real-estate web service APIs (Airbnb, LoopNet, Vrbo, Zillow)."
+readme = "README.md"
+requires-python = ">=3.14"
+license = { file = "LICENSE" }
+authors = [{ name = "Justin Horst" }]
+dependencies = [
+    "mcp>=1.2",
+    "curl-cffi>=0.7",
+]
+
+[project.scripts]
+airbnb-mcp = "realestate_mcp.servers.airbnb.server:main"
+loopnet-mcp = "realestate_mcp.servers.loopnet.server:main"
+vrbo-mcp = "realestate_mcp.servers.vrbo.server:main"
+zillow-mcp = "realestate_mcp.servers.zillow.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/realestate_mcp"]
+
+[dependency-groups]
+dev = [
+    "black>=26.3.1",
+    "ruff>=0.6",
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py314"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
