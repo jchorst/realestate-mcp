@@ -54,7 +54,7 @@ NIT (style / convention drift)
 - src/.../server.py:45 — comment "increment counter" describes WHAT, delete
 
 DISCUSS (judgment call worth user attention)
-- tests/test_zillow_search.py — fixture file is 240KB, recorded real response; consider trimming
+- tests/test_<service>_search.py — fixture file is 240KB, recorded real response; consider trimming
 ```
 
 If nothing is wrong: say so in one line, name what you checked.

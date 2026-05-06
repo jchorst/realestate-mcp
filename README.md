@@ -6,18 +6,22 @@ The four target services don't expose usable public REST APIs for indie develope
 
 ## Status
 
-| Service | Entry point     | Status                                                                 |
-| ------- | --------------- | ---------------------------------------------------------------------- |
-| Airbnb  | `airbnb-mcp`    | Implemented — `search_stays`, `get_listing_details`                    |
-| LoopNet | `loopnet-mcp`   | Stub (ping only)                                                       |
-| Vrbo    | `vrbo-mcp`      | Stub (ping only)                                                       |
-| Zillow  | `zillow-mcp`    | Stub (ping only)                                                       |
+| Service          | Entry point             | Status                                                                 |
+| ---------------- | ----------------------- | ---------------------------------------------------------------------- |
+| Airbnb           | `airbnb-mcp`            | Implemented — `search_stays`, `get_listing_details`                    |
+| Carolina Designs | `carolinadesigns-mcp`   | Implemented — `search_rentals`, `get_rental_details` (OBX north)       |
+| Twiddy           | `twiddy-mcp`            | Implemented — `search_rentals`, `get_rental_details` (OBX north)       |
+| Surf or Sound    | `surforsound-mcp`       | Implemented — `search_rentals`, `get_rental_details` (OBX Hatteras Is) |
+| Sun Realty       | `sunrealty-mcp`         | Implemented — search/details work; pricing gated behind their JS flow  |
+| LoopNet          | `loopnet-mcp`           | Stub (ping only)                                                       |
+
+Vrbo was evaluated and dropped: the site is hard-blocked by Akamai Bot Manager, which would force a Playwright/headless-browser dep just for one service. Zillow was attempted and removed: hard-blocked by PerimeterX/CloudFront with no path through `curl_cffi` impersonation alone — would need a residential proxy or Playwright, neither of which is in scope.
 
 ## Develop
 
 ```sh
 uv sync                    # install + create .venv
-uv run pytest -q           # 78 tests, ~1s, all mocked
+uv run pytest -q           # full test suite, ~1s, all mocked
 uv run ruff check .
 uv run airbnb-mcp          # run the Airbnb MCP server over stdio
 ```

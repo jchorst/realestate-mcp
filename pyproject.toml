@@ -1,7 +1,7 @@
 [project]
 name = "realestate-mcp"
 version = "0.1.0"
-description = "MCP servers for real-estate web service APIs (Airbnb, LoopNet, Vrbo, Zillow)."
+description = "MCP servers for real-estate web service APIs (Airbnb, LoopNet, plus OBX vacation-rental managers)."
 readme = "README.md"
 requires-python = ">=3.14"
 license = { file = "LICENSE" }
@@ -9,13 +9,16 @@ authors = [{ name = "Justin Horst" }]
 dependencies = [
     "mcp>=1.2",
     "curl-cffi>=0.7",
+    "beautifulsoup4>=4.12",
 ]
 
 [project.scripts]
 airbnb-mcp = "realestate_mcp.servers.airbnb.server:main"
+carolinadesigns-mcp = "realestate_mcp.servers.carolinadesigns.server:main"
 loopnet-mcp = "realestate_mcp.servers.loopnet.server:main"
-vrbo-mcp = "realestate_mcp.servers.vrbo.server:main"
-zillow-mcp = "realestate_mcp.servers.zillow.server:main"
+twiddy-mcp = "realestate_mcp.servers.twiddy.server:main"
+surforsound-mcp = "realestate_mcp.servers.surforsound.server:main"
+sunrealty-mcp = "realestate_mcp.servers.sunrealty.server:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -30,6 +33,7 @@ dev = [
     "ruff>=0.6",
     "pytest>=8",
     "pytest-asyncio>=0.23",
+    "openpyxl>=3.1",
 ]
 
 [tool.black]

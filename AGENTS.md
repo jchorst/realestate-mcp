@@ -12,29 +12,29 @@ uv run black src tests        # format
 uv run airbnb-mcp             # run Airbnb MCP server over stdio
 ```
 
-Per-server entry points are declared in `pyproject.toml` under `[project.scripts]`: `airbnb-mcp`, `loopnet-mcp`, `vrbo-mcp`, `zillow-mcp`.
+Per-server entry points are declared in `pyproject.toml` under `[project.scripts]`: `airbnb-mcp`, `carolinadesigns-mcp`, `loopnet-mcp`, `sunrealty-mcp`, `surforsound-mcp`, `twiddy-mcp`.
 
 ## Layout
 
 ```
 src/realestate_mcp/servers/
-├── airbnb/          implemented — search + listing details via embedded-JSON scraping
-│   ├── _client.py   sync client: geocode + fetch + parse
-│   └── server.py    FastMCP tools wrapping the client in asyncio.to_thread
-├── loopnet/         stub (ping only)
-├── vrbo/            stub (ping only)
-└── zillow/          stub (ping only)
+├── airbnb/            implemented — search + listing details via embedded-JSON scraping
+├── carolinadesigns/   implemented — direct JSON API (Drupal Solr-backed) for OBX north
+├── twiddy/            implemented — direct JSON API for OBX north
+├── surforsound/       implemented — HTML scrape (BeautifulSoup) for OBX Hatteras Island
+├── sunrealty/         implemented — Solr search + HTML detail; per-week pricing gated
+└── loopnet/           stub (ping only)
 
 tests/
-├── test_airbnb_helpers.py    pure-function tests (43)
-├── test_airbnb_parsers.py    JSON parsers w/ minimal hand-crafted fixtures (15)
-├── test_airbnb_search.py     mocked-HTTP integration (16)
-└── test_smoke.py             module-import smoke tests (4)
+├── test_<service>_helpers.py    pure-function tests
+├── test_<service>_parsers.py    parsers w/ minimal hand-crafted fixtures
+├── test_<service>_search.py     mocked-HTTP integration
+└── test_smoke.py                module-import smoke tests
 ```
 
 ## Conventions
 
-- **HTTP**: scrapers use `curl_cffi.requests` with `impersonate="chrome124"`. Do not swap to `httpx` for scrapers — Airbnb (and likely Zillow/LoopNet) fingerprint TLS handshakes and reject non-browser clients.
+- **HTTP**: scrapers use `curl_cffi.requests` with `impersonate="chrome124"`. Do not swap to `httpx` for scrapers — Airbnb fingerprints TLS handshakes and rejects non-browser clients, and most other scraping targets do too.
 - **Async boundary**: `_client.py` is sync; `server.py` wraps every call in `asyncio.to_thread`. Fan out parallel calls (e.g. `check_in_dates`) at the server layer with `asyncio.gather`.
 - **Schema drift is loud**: parsers raise `RuntimeError("Unexpected <service> response shape: ...")` when a top-level structural key is missing. Do not silence this with `try/except` — it's the canary.
 - **Defensive on optional fields**: use `.get()` chains and default to `None`/`[]` so a single missing optional field doesn't crash the whole listing.
@@ -45,14 +45,16 @@ tests/
 
 ## Real-estate API reality
 
-None of the four target services offer usable public REST APIs for indie developers:
+None of the broad-market consumer services offer usable public REST APIs for indie developers:
 
 | Service | Reality |
 |---|---|
 | Airbnb | Official program invite-only; we scrape server-rendered search/PDP pages. |
-| Zillow | Public API deprecated 2021; Bridge API requires MLS membership ($500+/mo). |
-| Vrbo | Gated through Expedia Group Rapid API (approval-only). |
 | LoopNet / CoStar | Enterprise contracts only; no developer access. |
+| Vrbo | Akamai-protected; would need Playwright. Evaluated and dropped. |
+| Zillow | PerimeterX/CloudFront blocks `curl_cffi` impersonation outright. Attempted, removed; would need a residential proxy or Playwright. |
+
+OBX-specific local property managers (Carolina Designs, Twiddy, Surf or Sound, Sun Realty) are different — most expose internal JSON APIs (Solr, Bluetent, Drupal CMS endpoints) that respond fine to `curl_cffi` with no auth. The OBX MCPs lean on those.
 
 Each service's TOS forbids scraping. This is a personal-use project; commercial resale of scraped data is a different conversation.
 
@@ -93,7 +95,7 @@ Five focused sub-agents are available for routine workflows. Each has hard rules
 | Agent | Use when |
 |---|---|
 | `airbnb-schema-doctor` | Airbnb parser raises `Unexpected response shape`, returns empty fields, or produces nonsense values. Reproduces live → narrow patch → mirror in fixture → verify. |
-| `mcp-service-bootstrapper` | Starting work on a stub service (Zillow, LoopNet, Vrbo) or adding a new one. Scaffolds `_client.py`, `server.py`, and the three test files following the Airbnb pattern. |
+| `mcp-service-bootstrapper` | Starting work on a stub service (LoopNet) or adding a new one (e.g. another OBX local manager). Scaffolds `_client.py`, `server.py`, and the three test files following the Airbnb pattern. |
 | `python-reviewer` | Reviewing uncommitted changes against project conventions before commit. Read-only; produces a severity-categorized punch list. |
 | `test-author` | Adding test coverage for new/modified code. Picks the right test layer (helpers / parsers / mocked-HTTP), reuses existing builder helpers, never records real-response fixtures. |
 | `test-mender` | `pytest` is failing. Classifies each failure by root cause and fixes at the right layer. Will not weaken assertions, skip, or delete tests to hit a passing run. |

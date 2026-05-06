@@ -18,7 +18,7 @@ if errorlevel 1 (
 
 echo.
 echo [1/2] Unregistering MCP servers from Claude Code (user scope)...
-for %%S in (airbnb loopnet vrbo zillow) do (
+for %%S in (airbnb carolinadesigns loopnet sunrealty surforsound twiddy) do (
     call claude mcp remove %%S --scope user >nul 2>&1 && (echo   - %%S removed) || (echo   . %%S not registered)
 )
 

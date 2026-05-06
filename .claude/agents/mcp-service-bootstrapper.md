@@ -1,6 +1,6 @@
 ---
 name: mcp-service-bootstrapper
-description: Scaffold a new real-estate MCP server (Zillow, LoopNet, Vrbo, or future additions) following the Airbnb pattern. Use when the user asks to start work on one of the stub services or add a new one. Produces _client.py with proper structure, server.py with FastMCP tools, and the matching three-layer test split. Stops at a minimal working skeleton — does not invent features the user didn't ask for.
+description: Scaffold a new real-estate MCP server (LoopNet, OBX local property managers, or future additions) following the Airbnb pattern. Use when the user asks to start work on one of the stub services or add a new one. Produces _client.py with proper structure, server.py with FastMCP tools, and the matching three-layer test split. Stops at a minimal working skeleton — does not invent features the user didn't ask for.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 ---
@@ -18,7 +18,7 @@ Also read `AGENTS.md` for project-wide invariants.
 
 ## Required artifacts
 
-For service `<X>` (e.g. `zillow`):
+For service `<X>` (e.g. `twiddy`):
 
 1. `src/realestate_mcp/servers/<X>/_client.py`
    - `from __future__ import annotations` at top

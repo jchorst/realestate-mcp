@@ -47,14 +47,34 @@ call claude mcp add --scope user airbnb -- airbnb-mcp
 if errorlevel 1 exit /b 1
 echo   + airbnb
 
-REM Stubs (loopnet/vrbo/zillow) only expose a 'ping' tool today; not registered to keep
-REM Claude Code's tool list clean. Uncomment these lines as each server is implemented:
+REM carolinadesigns - implemented (search_rentals, get_rental_details)
+call claude mcp remove carolinadesigns --scope user >nul 2>&1
+call claude mcp add --scope user carolinadesigns -- carolinadesigns-mcp
+if errorlevel 1 exit /b 1
+echo   + carolinadesigns
+
+REM twiddy - implemented (search_rentals, get_rental_details)
+call claude mcp remove twiddy --scope user >nul 2>&1
+call claude mcp add --scope user twiddy -- twiddy-mcp
+if errorlevel 1 exit /b 1
+echo   + twiddy
+
+REM surforsound - implemented (search_rentals, get_rental_details)
+call claude mcp remove surforsound --scope user >nul 2>&1
+call claude mcp add --scope user surforsound -- surforsound-mcp
+if errorlevel 1 exit /b 1
+echo   + surforsound
+
+REM sunrealty - implemented (search_rentals, get_rental_details)
+call claude mcp remove sunrealty --scope user >nul 2>&1
+call claude mcp add --scope user sunrealty -- sunrealty-mcp
+if errorlevel 1 exit /b 1
+echo   + sunrealty
+
+REM Stub (loopnet) only exposes a 'ping' tool today; not registered to keep
+REM Claude Code's tool list clean. Uncomment when implemented:
 REM call claude mcp remove loopnet --scope user >nul 2>&1
 REM call claude mcp add --scope user loopnet -- loopnet-mcp
-REM call claude mcp remove vrbo --scope user >nul 2>&1
-REM call claude mcp add --scope user vrbo -- vrbo-mcp
-REM call claude mcp remove zillow --scope user >nul 2>&1
-REM call claude mcp add --scope user zillow -- zillow-mcp
 
 echo.
 echo Done. Restart any open Claude Code sessions to pick up the new servers.
