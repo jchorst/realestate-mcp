@@ -12,7 +12,7 @@ uv run black src tests        # format
 uv run airbnb-mcp             # run Airbnb MCP server over stdio
 ```
 
-Per-server entry points are declared in `pyproject.toml` under `[project.scripts]`: `airbnb-mcp`, `carolinadesigns-mcp`, `loopnet-mcp`, `sunrealty-mcp`, `surforsound-mcp`, `twiddy-mcp`.
+Per-server entry points are declared in `pyproject.toml` under `[project.scripts]`: `airbnb-mcp`, `carolinadesigns-mcp`, `loopnet-mcp`, `redfin-mcp`, `sunrealty-mcp`, `surforsound-mcp`, `twiddy-mcp`.
 
 ## Layout
 
@@ -20,6 +20,7 @@ Per-server entry points are declared in `pyproject.toml` under `[project.scripts
 src/realestate_mcp/servers/
 ├── airbnb/            implemented — search + listing details via embedded-JSON scraping
 ├── carolinadesigns/   implemented — direct JSON API (Drupal Solr-backed) for OBX north
+├── redfin/            implemented — ZIP search + listing details via ReactServerAgent cache
 ├── twiddy/            implemented — direct JSON API for OBX north
 ├── surforsound/       implemented — HTML scrape (BeautifulSoup) for OBX Hatteras Island
 ├── sunrealty/         implemented — Solr search + HTML detail; per-week pricing gated
@@ -53,6 +54,7 @@ None of the broad-market consumer services offer usable public REST APIs for ind
 | LoopNet / CoStar | Enterprise contracts only; no developer access. |
 | Vrbo | Akamai-protected; would need Playwright. Evaluated and dropped. |
 | Zillow | PerimeterX/CloudFront blocks `curl_cffi` impersonation outright. Attempted, removed; would need a residential proxy or Playwright. |
+| Redfin | No bot challenge on server-rendered pages. `curl_cffi` chrome124 gets 200 OK. Uses `istio-envoy`. |
 
 OBX-specific local property managers (Carolina Designs, Twiddy, Surf or Sound, Sun Realty) are different — most expose internal JSON APIs (Solr, Bluetent, Drupal CMS endpoints) that respond fine to `curl_cffi` with no auth. The OBX MCPs lean on those.
 
@@ -84,9 +86,26 @@ Follow the Airbnb shape:
 4. Add the entry point to `[project.scripts]` in `pyproject.toml` (already present for the four stubs).
 5. Run `uv sync && uv run ruff check . && uv run pytest -q` before declaring done.
 
+## Redfin-specific gotchas
+
+The Redfin parser extracts from `root.__reactServerState.InitialContext` (a JS assignment in a `<script>` tag, not a JSON `<script type="application/json">`). The value is JSON but is not enclosed in a `<script type="application/json">` tag — we walk brace depth to find the closing `}` without relying on a closing tag.
+
+Key paths we depend on:
+
+- **Search** (`/zipcode/<zip>`): `ReactServerAgent.cache[key matching "/stingray/api/gis?"].res.text` → strip `{}&&` prefix → `payload.homes[]`
+- **Detail** (`/NC/.../<address>/home/<id>`): `aboveTheFold.addressSectionInfo` for core fields; `aboveTheFold.mediaBrowserInfo.photos[*].photoUrls.fullScreenPhotoUrl` for images; `mainHouseInfoPanelInfo.mainHouseInfo.listingAgents[0]` for agent/brokerage; JSON-LD `@type=["Product","RealEstateListing"]` block for description.
+
+Known quirks:
+- Bare numeric ID lookup (`/home/<id>`) returns 404. Always use full URLs for `get_home_details`. The client accepts bare IDs (needed for the type contract) but they only work if Redfin redirects `/home/<id>` for that specific property — in practice most 404.
+- `hoa_fee` is available on the search page (`gis.payload.homes[].hoa.value`) but not on the detail page without an extra call. The detail tool always returns `null` for it.
+- `cumulativeDaysOnMarket = 0` on the detail page means the listing was just added today, not "unknown". The search page's `dom.value` field is more reliable for non-zero values.
+- Photo format (`photoFormat`) is `webp` for most listings but not all. Use the value from the response, not a hardcoded extension.
+- Image URL pattern: `https://ssl.cdn-redfin.com/photo/{dataSourceId}/bigphoto/{mlsId[-3:]}/{mlsId}_0.{photoFormat}`
+
 ## Environment
 
 - `AIRBNB_PROXY_URL` — optional; passes through to `curl_cffi` for residential-proxy use under heavy load. Light personal use doesn't need it.
+- `REDFIN_PROXY_URL` — optional; same purpose for the Redfin server.
 
 ## Sub-agents (`.claude/agents/`)
 

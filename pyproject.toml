@@ -15,10 +15,13 @@ dependencies = [
 [project.scripts]
 airbnb-mcp = "realestate_mcp.servers.airbnb.server:main"
 carolinadesigns-mcp = "realestate_mcp.servers.carolinadesigns.server:main"
+churchrealty-mcp = "realestate_mcp.servers.churchrealty.server:main"
+crexi-mcp = "realestate_mcp.servers.crexi.server:main"
 loopnet-mcp = "realestate_mcp.servers.loopnet.server:main"
-twiddy-mcp = "realestate_mcp.servers.twiddy.server:main"
-surforsound-mcp = "realestate_mcp.servers.surforsound.server:main"
+redfin-mcp = "realestate_mcp.servers.redfin.server:main"
 sunrealty-mcp = "realestate_mcp.servers.sunrealty.server:main"
+surforsound-mcp = "realestate_mcp.servers.surforsound.server:main"
+twiddy-mcp = "realestate_mcp.servers.twiddy.server:main"
 
 [build-system]
 requires = ["hatchling"]

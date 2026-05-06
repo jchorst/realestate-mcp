@@ -53,6 +53,18 @@ call claude mcp add --scope user carolinadesigns -- carolinadesigns-mcp
 if errorlevel 1 exit /b 1
 echo   + carolinadesigns
 
+REM churchrealty - implemented (search_listings, get_listing_details); Texas-only (DFW + Houston)
+call claude mcp remove churchrealty --scope user >nul 2>&1
+call claude mcp add --scope user churchrealty -- churchrealty-mcp
+if errorlevel 1 exit /b 1
+echo   + churchrealty
+
+REM crexi - implemented (search_properties, get_property_details)
+call claude mcp remove crexi --scope user >nul 2>&1
+call claude mcp add --scope user crexi -- crexi-mcp
+if errorlevel 1 exit /b 1
+echo   + crexi
+
 REM twiddy - implemented (search_rentals, get_rental_details)
 call claude mcp remove twiddy --scope user >nul 2>&1
 call claude mcp add --scope user twiddy -- twiddy-mcp
@@ -64,6 +76,12 @@ call claude mcp remove surforsound --scope user >nul 2>&1
 call claude mcp add --scope user surforsound -- surforsound-mcp
 if errorlevel 1 exit /b 1
 echo   + surforsound
+
+REM redfin - implemented (search_homes, get_home_details)
+call claude mcp remove redfin --scope user >nul 2>&1
+call claude mcp add --scope user redfin -- redfin-mcp
+if errorlevel 1 exit /b 1
+echo   + redfin
 
 REM sunrealty - implemented (search_rentals, get_rental_details)
 call claude mcp remove sunrealty --scope user >nul 2>&1
